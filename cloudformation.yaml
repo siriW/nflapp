@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  KeyPairName:
+    Type: 'String'
+    Default: 'ubuntu'
+
+Mappings:
+  RegionMap:
+    ap-northeast-1:
+      ubuntu: ami-07ad4b1c3af1ea214
+    ap-northeast-2:
+      ubuntu: ami-06e7b9c5e0c4dd014
+    ap-southeast-1:
+      ubuntu: ami-0c5199d385b432989
+    ap-southeast-2:
+      ubuntu: ami-07a3bd4944eb120a0
+    ca-central-1:
+      ubuntu: ami-0427e8367e3770df1
+    eu-central-1:
+      ubuntu: ami-0bdf93799014acdc4
+    eu-west-1:
+      ubuntu: ami-00035f41c82244dab
+    eu-west-2:
+      ubuntu: ami-0b0a60c0a2bd40612
+    us-east-1:
+      ubuntu: ami-0ac019f4fcb7cb7e6
+    us-east-2:
+      ubuntu: ami-0f65671a86f061fcd
+    us-west-1:
+      ubuntu: ami-063aa838bd7631e0b
+    us-west-2:
+      ubuntu: ami-0bbe6b35405ecebdb
+
+Resources:
+  WebAppSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Opening up HTTP and SSH port.
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '5000'
+        ToPort: '5000'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+  WebAppInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+        - RegionMap
+        - Ref: AWS::Region
+        - ubuntu
+      InstanceType: t2.micro
+      KeyName: !Ref KeyPairName
+      SecurityGroups:
+      - !Ref WebAppSecGroup
+      UserData: !Base64 |
+        #!/bin/bash
+        cd /home/ubuntu
+        apt-get update
+        apt-get install python-pip -y
+        apt-get install mongodb -y
+        git clone https://github.com/siriW/nflapp.git
+        export LC_ALL=C
+        pip install -r nflapp/requirements.txt
+        cd nflapp
+        python app.py &
+
+Outputs:
+  WorkStationIP:
+    Description: IP address of web application host
+    Value: !GetAtt WebAppInstance.PublicIp
