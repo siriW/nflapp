@@ -22,10 +22,10 @@ http://<<ec2-public-ip>>:5000/ingest?season=2018&seasonType=REG
 
 ####Byeweek:
 ##### by team alias:
-http://<<ec2-public-ip>>:5000/byeweek?season=2016&team_alias=CHI
+http://<<ec2-public-ip>>:5000/byeweek?season=2018&team_alias=CHI
 
 ##### by all teams: 
-http://<<ec2-public-ip>>:5000/byeweek?season=2016
+http://<<ec2-public-ip>>:5000/byeweek?season=2018
 
 
 ####Average points after byeweek:
